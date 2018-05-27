@@ -6,7 +6,7 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 10;//25;
+size_t N = 10;
 double dt = 0.1;
 
 // We set the number of timesteps to 25
@@ -21,6 +21,7 @@ double dt = 0.1;
 // presented in the classroom matched the previous radius.
 //
 // This is the length from front to CoG that has a similar radius.
+
 const double Lf = 2.67;
 // reference velocity
 double ref_v = 60;
@@ -33,23 +34,8 @@ size_t cte_start = v_start + N;
 size_t epsi_start = cte_start + N;
 size_t delta_start = epsi_start + N;
 size_t a_start = delta_start + N - 1;
-/*
-double w_cte = 200.0;
-double w_epsi = 6000.0;
-double w_v = 10.0;
-double w_a = 5.0;
-double w_delta = 1000.0;//1.0
-double w_diff_a = 1000.0;
-double w_diff_delta = 20000.0;//1.0;
-*/
 
-double w_cte = 1.0;
-double w_epsi = 1.0;
-double w_v = 1.0;
-double w_a = 2.0;
-double w_delta = 2.0;//1.0
-double w_diff_a = 15000.0;
-double w_diff_delta = 100.0;//1.0;
+
 
 class FG_eval {
  public:
@@ -63,7 +49,13 @@ class FG_eval {
     // `fg` a vector of the cost constraints, `vars` is a vector of variable values (state & actuators)
     // NOTE: You'll probably go back and forth between this function and
     // the Solver function below.
-
+	int w_cte = 1000;
+	int w_epsi = 1000;
+	int w_v = 1;
+	int w_delta = 50;
+	int w_a = 50;
+	int w_diff_delta = 250000;
+	int w_diff_a = 5000;
     fg[0] = 0;
     // The part of the cost based on the reference state.
     for (int t = 0; t < N; t++) {
@@ -127,10 +119,10 @@ class FG_eval {
 
       fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
       fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
-      fg[1 + psi_start + t] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
+      fg[1 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / Lf * dt);
       fg[1 + v_start + t] = v1 - (v0 + a0 * dt);
       fg[1 + cte_start + t] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
-      fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
+      fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) - v0 * delta0 / Lf * dt);
     }
   }
 };
@@ -184,8 +176,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 //The steer angle is limited in -25~25 degree = (-25~25 )*Pi/180 degree =(-0.436332~0.436332) rad
   //
   for (i = delta_start; i < a_start; i++) {
-    vars_lowerbound[i] = -0.436332;
-    vars_upperbound[i] = 0.436332;
+    vars_lowerbound[i] = -0.436332*Lf;
+    vars_upperbound[i] = 0.436332*Lf;
   }
 
   // Acceleration/decceleration upper and lower limits.
