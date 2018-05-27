@@ -1,7 +1,111 @@
 # CarND-Controls-MPC
 Self-Driving Car Engineer Nanodegree Program
 
----
+### Implementation
+
+------
+
+#### Kinematic Model
+
+kinematic model is to be used to represent the state of the car. 
+
+$x_{t+1}=x_t+ v_t*cos(\psi_t)*dt$
+
+$y_{t+1}=y_t+ v_t*sin(\psi_t)*dt$
+
+$\psi_{t+1}=\psi_t+{V_t}/{L_f}*\delta*dt$
+
+$v_{t+1}=v_t + a*dt$
+
+$cte_{t+1} = f(x_t)-y_t+v_t*sine(e\psi_t)*dt$
+
+$e\psi_{t+1}=\psi_t-\psi_{dest}+v_t/L_f*\delta_t*dt$
+
+
+
+$x,y,\psi,v $ are position x, position y, heading and velocity of the car.
+
+$cte $ is the cross error track between the car position and road center
+
+$e\psi$ is the error of $\psi$
+
+####Constraints
+
+The constraints are
+
+$\delta \in[-25,25]$
+
+$a\in[-1,1]$
+
+can be found in MPC.cpp line 187-197
+
+#### Cost Function
+
+The cost function is combine from the error of $cte$,$\psi$ , $v$, $a$ , $delta$ and difference of $delta$ and $a$
+
+I set the larger weight to different $delta$ and $a$, because the difference with the smaller value.    
+
+the code of thesr cost function is in MPC.cpp line 53-77
+
+```
+    int w_cte = 1000;
+    int w_epsi = 1000;
+    int w_v = 1;
+    int w_delta = 50;
+    int w_a = 50;
+    int w_diff_delta = 200000;
+    int w_diff_a = 3000;
+    fg[0] = 0;
+    // The part of the cost based on the reference state.
+    for (int t = 0; t < N; t++) {
+      fg[0] += w_cte * CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += w_epsi * CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += w_v * CppAD::pow(vars[v_start + t] - ref_v, 2);
+    }
+    // Minimize the use of actuators.
+    for (int t = 0; t < N - 1; t++) {
+      fg[0] += w_delta * CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += w_a * CppAD::pow(vars[a_start + t], 2);
+    }
+
+    // Minimize the value gap between sequential actuations.
+    for (int t = 0; t < N - 2; t++) {
+      fg[0] += w_diff_delta * CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += w_diff_a * CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+    }
+```
+
+
+
+#### N & dt
+
+I set the reference velocity to 60 mph.  At first I set N = 10, dt = 0.1;
+
+But the calculation can not match in this speed. So I decrease N = 8; The it can go very will.
+
+#### Fit Polynomial to waypoints 
+
+I used 3 degree polynomial function to transform waypoints to car global position
+
+These are in main.cpp line 105-116
+
+```
+          // coordinate transform from waypoints  to car
+          Eigen::VectorXd car_ptsx(ptsx.size());
+          Eigen::VectorXd car_ptsy(ptsx.size());
+
+          for (int i = 0; i < ptsx.size(); i++) {
+            double dx = ptsx[i] - px;
+            double dy = ptsy[i] - py;
+            car_ptsx[i] = dx * cos(-psi) - dy * sin(-psi);
+            car_ptsy[i] = dx * sin(-psi) + dy * cos(-psi);
+          }
+
+          // polynom fit to the waypoints
+          Eigen::VectorXd coeffs = polyfit(car_ptsx, car_ptsy, 3);
+```
+
+
 
 ## Dependencies
 
