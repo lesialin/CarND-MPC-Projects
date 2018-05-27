@@ -111,7 +111,7 @@ These are in main.cpp line 105-116
 
 The simulation video is 
 
-[video]: https://youtu.be/Hw4jwS7GNVc
+[video]: https://youtu.be/Hw4jwS7GNVc	"video"
 
 
 
