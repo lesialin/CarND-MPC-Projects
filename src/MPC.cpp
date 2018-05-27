@@ -49,39 +49,31 @@ class FG_eval {
     // `fg` a vector of the cost constraints, `vars` is a vector of variable values (state & actuators)
     // NOTE: You'll probably go back and forth between this function and
     // the Solver function below.
-	/*
-  int w_cte = 1000;
-	int w_epsi = 1000;
-	int w_v = 1;
-	int w_delta = 50;
-	int w_a = 50;
-	int w_diff_delta = 200000;
-	int w_diff_a = 3000;
-*/
-  int w_cte = 1000;
-  int w_epsi = 1000;
-  int w_v = 1;
-  int w_delta = 50;
-  int w_a = 50;
-  int w_diff_delta = 200000;
-  int w_diff_a = 3000;
+
+    int w_cte = 1000;
+    int w_epsi = 1000;
+    int w_v = 1;
+    int w_delta = 50;
+    int w_a = 50;
+    int w_diff_delta = 200000;
+    int w_diff_a = 3000;
     fg[0] = 0;
     // The part of the cost based on the reference state.
     for (int t = 0; t < N; t++) {
-      fg[0] += w_cte * CppAD::pow(vars[cte_start + t], 2); 
-      fg[0] += w_epsi * CppAD::pow(vars[epsi_start + t], 2); 
+      fg[0] += w_cte * CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += w_epsi * CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += w_v * CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += w_delta*CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += w_a*CppAD::pow(vars[a_start + t], 2);
+      fg[0] += w_delta * CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += w_a * CppAD::pow(vars[a_start + t], 2);
     }
 
     // Minimize the value gap between sequential actuations.
     for (int t = 0; t < N - 2; t++) {
-      fg[0] += w_diff_delta*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      fg[0] += w_diff_a*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+      fg[0] += w_diff_delta * CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += w_diff_a * CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
     //Initialization & constraints
     fg[1 + x_start] = vars[x_start];
@@ -185,8 +177,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 //The steer angle is limited in -25~25 degree = (-25~25 )*Pi/180 degree =(-0.436332~0.436332) rad
   //
   for (i = delta_start; i < a_start; i++) {
-    vars_lowerbound[i] = -0.436332*Lf;
-    vars_upperbound[i] = 0.436332*Lf;
+    vars_lowerbound[i] = -0.436332 * Lf;
+    vars_upperbound[i] = 0.436332 * Lf;
   }
 
   // Acceleration/decceleration upper and lower limits.
