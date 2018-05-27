@@ -131,15 +131,12 @@ int main() {
           double pred_psi = init_psi - v * steer_value / Lf * latency;
           double pred_v = v + throttle_value * latency;
           double pred_cte = init_cte + v * sin(init_epsi) * latency;
-          double pred_epsi = init_epsi - v * atan(coeffs[1]) / Lf * latency;
-          //double pred_epsi = init_epsi - v * steer_value / Lf * latency;
+          double pred_epsi = init_epsi - v * steer_value / Lf * latency;
 
           Eigen::VectorXd state(6);
-          //state << 0, 0, 0, v, cte, epsi;
           state << pred_px, pred_py, pred_psi, pred_v, pred_cte, pred_epsi;
 
           vector<double> mpcSolve = mpc.Solve(state, coeffs);
-          //steer_value = mpcSolve[0] / (deg2rad(25) * Lf); // Dividing by Lf regards vehicles turning ability
           steer_value = mpcSolve[0] / deg2rad(25);
           throttle_value = mpcSolve[1];
 
@@ -172,8 +169,9 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
-          int num_of_points = 100;
-          for (double i = 0; i < num_of_points; i = i + 3) {
+          int num_of_points = 20;
+          int interval = 3;
+          for (double i = 0; i < interval * num_of_points; i = i + interval) {
             next_x_vals.push_back(i);
             next_y_vals.push_back(polyeval(coeffs, i));
           }

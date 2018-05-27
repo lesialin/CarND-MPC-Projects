@@ -6,7 +6,7 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 10;
+size_t N = 8;
 double dt = 0.1;
 
 // We set the number of timesteps to 25
@@ -49,13 +49,22 @@ class FG_eval {
     // `fg` a vector of the cost constraints, `vars` is a vector of variable values (state & actuators)
     // NOTE: You'll probably go back and forth between this function and
     // the Solver function below.
-	int w_cte = 1000;
+	/*
+  int w_cte = 1000;
 	int w_epsi = 1000;
 	int w_v = 1;
 	int w_delta = 50;
 	int w_a = 50;
-	int w_diff_delta = 250000;
-	int w_diff_a = 5000;
+	int w_diff_delta = 200000;
+	int w_diff_a = 3000;
+*/
+  int w_cte = 1000;
+  int w_epsi = 1000;
+  int w_v = 1;
+  int w_delta = 50;
+  int w_a = 50;
+  int w_diff_delta = 200000;
+  int w_diff_a = 3000;
     fg[0] = 0;
     // The part of the cost based on the reference state.
     for (int t = 0; t < N; t++) {
