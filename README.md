@@ -107,6 +107,14 @@ These are in main.cpp line 105-116
 
 
 
+#### Simulation
+
+The simulation video is 
+
+[video]: https://youtu.be/Hw4jwS7GNVc
+
+
+
 ## Dependencies
 
 * cmake >= 3.5
